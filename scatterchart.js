@@ -34,7 +34,7 @@ function update() {
 	var data = dataset[currentsecond];
 	
 	var margin = {top: 40, right: 40, bottom: 40, left: 40};
-	var width = 820 - margin.left - margin.right;
+	var width = 830 - margin.left - margin.right;
 	var height = 700 - margin.top - margin.bottom;
 	
 	var xValue = function(d) {return d.x;};
@@ -86,7 +86,7 @@ function update() {
 		.data(data)
 		.enter().append("g")
 		.attr("class", "legend")
-		.attr("transform", function(d, i) { return "translate(0," + i * (legendsize * 2 + 6) + ")"; });
+		.attr("transform", function(d, i) { return "translate(0," + (i-1) * (legendsize * 2 + 6) + ")"; });
 
 	legend.append("rect")
 		.filter(function(d) {return d.hp <= 0;})

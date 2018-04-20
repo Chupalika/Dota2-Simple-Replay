@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html><head><title>Dota 2 Simple Replay</title>
-    <body>
-        <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:700px"> <span id="time">0</span>
-	<div class="chart" style="background-image:url('Minimap_6.82.png'); height:700px; width:700px;">asdf</div>
-    </body>
-<style>
+<html>
 
+<head>
+    <title>Dota 2 Simple Replay</title>
+</head>
+
+<style>
 body {
     font: 12px sans-serif;
 }
@@ -22,12 +22,14 @@ body {
 }
 
 </style>
-    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
-  </head>
-  <body>
-    <div class='content'>
-      <!-- /the chart goes here -->
-    </div>
-    <script type="text/javascript" src="scatterchart.js"></script>
-  </body>
+
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
+<script type="text/javascript" src="scatterchart.js"></script>
+
+<body>
+    <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:700px"> <span id="time">0</span>
+    <div class="chart" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; background-image:url('Minimap_6.82.png'); height:700px; width:700px;">asdf</div>
+    <div class="options" style="display:inline-block; border:1px solid #AAAAAA; border-radius:3px; padding:3px 3px 3px 3px;">asdf</div>
+</body>
+
 </html>
