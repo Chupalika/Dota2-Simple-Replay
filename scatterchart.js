@@ -2,8 +2,14 @@ var dataset = [];
 var currentsecond = 0;
 var dotsize = 10;
 var legendsize = 10;
+var traillength = 10;
 //var colors = [d3.rgb("#9e0142"), d3.rgb("#d53e4f"), d3.rgb("#f46d43"), d3.rgb("#fdae61"), d3.rgb("#fee08b"), d3.rgb("#e6f598"), d3.rgb("#abdda4"), d3.rgb("#66c2a5"), d3.rgb("#3288bd"), d3.rgb("#5e4fa2")];
 var colors = [d3.rgb("#a6cee3"), d3.rgb("#1f78b4"), d3.rgb("#b2df8a"), d3.rgb("#33a02c"), d3.rgb("#fb9a99"), d3.rgb("#e31a1c"), d3.rgb("#fdbf6f"), d3.rgb("#ff7f00"), d3.rgb("#cab2d6"), d3.rgb("#6a3d9a")];
+
+window.onload = function() {
+    document.getElementById("options").style.top = ((legendsize * 2 + 6) * 10) + 90 + "px";
+    document.getElementById("options").style.height = (660 - ((legendsize * 2 + 6) * 10)) + "px";
+}
 
 d3.csv("data.csv", function(data) {
 	data.forEach(function(d) {
@@ -58,7 +64,7 @@ function update() {
 		.attr('height', height + margin.top + margin.bottom)
 		.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 	
-	var dots = svg.selectAll(".dot").data(data).enter()
+	var dots = svg.selectAll(".dot").data(data).enter();
 	
 	dots.append("rect")
 		.filter(function(d) {return d.hp <= 0;})
@@ -70,6 +76,7 @@ function update() {
 		.style("fill", function(d) {return color(d);})
 		.style("stroke", function(d) {return stroke(d);})
 		.style("stroke-width", dotsize * 0.4);
+		//.attr("transform", "rotate(45)");
 	
 	dots.append("circle")
 		.filter(function(d) {return d.hp > 0;})
@@ -80,6 +87,40 @@ function update() {
 		.style("fill", function(d) {return color(d);})
 		.style("stroke", function(d) {return stroke(d);})
 		.style("stroke-width", dotsize * 0.4);
+	
+	//draw trails!
+	var stars = [[], [], [], [], [], [], [], [], [], []];
+	for (i = 0; i <= traillength; i++) {
+		if (currentsecond >= 1) {
+			var data2 = dataset[currentsecond-i];
+			var dots2 = svg.selectAll(".dot" + i).data(data2).enter();
+			data2.forEach(function(item, index) {stars[index].push(item);});
+			
+			dots2.append("circle")
+				.filter(function(d) {return d.hp > 0;})
+				.attr("class", "dot")
+				.attr("r", 2)
+				.attr("cx", xMap)
+				.attr("cy", yMap)
+				.style("fill", function(d) {return color(d);})
+				.style("stroke-width", 0);
+			
+		}
+	}
+	
+	var link = d3.svg.line()
+		.x(xMap)
+		.y(yMap)
+		.interpolate("linear");
+	
+	stars.forEach(function(item, index) {
+		asdf = item[0];
+		svg.append("path")
+			.attr("d", link(item))
+			.attr("class", "link")
+			.style("stroke", color(asdf))
+			.style("stroke-width", 5);
+	});
 	
 	// draw legend
 	var legend = svg.selectAll(".legend")
@@ -117,8 +158,15 @@ function update() {
 
 function updatetime() {
     currentsecond = document.getElementById("inputtime").value;
-    element = document.getElementById("time");
-    element.innerHTML = currentsecond;
+    document.getElementById("minute").innerHTML = String(Math.floor(currentsecond/60)).padStart(2, "0");
+    document.getElementById("second").innerHTML = String(currentsecond%60).padStart(2, "0");
+    d3.select("svg").remove();
+    update();
+}
+
+function updateTL() {
+    traillength = document.getElementById("inputTL").value;
+    document.getElementById("TL").innerHTML = traillength;
     d3.select("svg").remove();
     update();
 }
