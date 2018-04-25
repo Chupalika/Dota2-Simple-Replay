@@ -1,6 +1,7 @@
 package skadistats.clarity.examples.entitymovement;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -10,61 +11,130 @@ import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
+import skadistats.clarity.processor.runner.ControllableRunner;
 import skadistats.clarity.processor.entities.Entities;
 import skadistats.clarity.processor.entities.OnEntityUpdated;
 import skadistats.clarity.source.MappedFileSource;
 
 public class Main {
+    private Hashtable<Integer, String> listofheroes = new Hashtable<Integer, String>();
+    
+    private void setup() {
+        listofheroes.put(5, "CrystalMaiden");
+        listofheroes.put(14, "Pudge");
+        listofheroes.put(26, "Lion");
+        listofheroes.put(43, "DeathProphet");
+        listofheroes.put(51, "Rattletrap");
+        listofheroes.put(53, "Furion");
+        listofheroes.put(59, "Huskar");
+        listofheroes.put(71, "SpiritBreaker");
+        listofheroes.put(97, "Magnataur");
+        listofheroes.put(112, "Winter_Wyvern");
+    }
 
     private final Logger log = LoggerFactory.getLogger(Main.class.getPackage().getClass());
+    private ControllableRunner r;
     
-    private BufferedWriter writer;
+    private ArrayList<String> players;
     private ArrayList<String> heroes;
     private ArrayList< Hashtable<String, int[]> > datapersecond;
 
     @Insert
     private Context ctx;
+    
+    private Entity getEntity(String entityName) {
+        return r.getContext().getProcessor(Entities.class).getByDtName(getEngineDependentEntityName(entityName));
+    }
+    
+    private String getEngineDependentEntityName(String entityName) {
+        switch (r.getEngineType()) {
+            case SOURCE1:
+                return "DT_DOTA_" + entityName;
+            case SOURCE2:
+                return "CDOTA_" + entityName;
+            default:
+                throw new RuntimeException("invalid engine type");
+        }
+    }
 
     @OnEntityUpdated
-    public void onEntityUpdated(Entity e, FieldPath[] fieldPaths, int num) {
-        String entityname = e.getDtClass().getDtName();
-        Integer tick = ctx.getTick();
-        Integer second = tick / 30;
+    public void onEntityUpdated(Entity e, FieldPath[] fieldPaths, int num) {}
+    
+    private void updatestats(Integer tick) {
+        if (r.getContext() == null) {
+            return;
+        }
         
-        //if entity is a hero and has the location property
-        if (e.hasProperty("m_cellX") && entityname.contains("DT_DOTA_Unit_Hero")) {
-            String heroname = entityname.substring(18);
+        Integer second = tick / 30;
+        Entity playerresource = r.getContext().getProcessor(Entities.class).getByDtName(getEngineDependentEntityName("PlayerResource"));
+        
+        //Create empty rows for each second, each row will contain location info for each hero, if it exists
+        while (second >= datapersecond.size()) {
+            Hashtable<String, int[]> temp = new Hashtable<String, int[]>();
+            datapersecond.add(temp);
+        }
+        
+        for (int i = 0; i < 10; i++) {
+            //keep a list of players in the match
+            String playername = playerresource.getProperty("m_iszPlayerNames.000" + i);
+            if (players.contains(playername) != true) {
+                players.add(playername);
+            }
+            
+            //gather player info
+            Integer heroid = playerresource.getProperty("m_nSelectedHeroID.000" + i);
+            Integer team = playerresource.getProperty("m_iPlayerTeams.000" + i);
+            Integer kills = playerresource.getProperty("m_iKills.000" + i);
+            Integer assists = playerresource.getProperty("m_iAssists.000" + i);
+            Integer deaths = playerresource.getProperty("m_iDeaths.000" + i);
+            Integer respawnseconds = playerresource.getProperty("m_iRespawnSeconds.000" + i);
+            Integer totalgold = (Integer)(playerresource.getProperty("m_iHeroKillGold.000" + i)) + (Integer)(playerresource.getProperty("m_iCreepKillGold.000" + i)) + (Integer)(playerresource.getProperty("m_iIncomeGold.000" + i));
+            Integer lasthits = playerresource.getProperty("m_iLastHitCount.000" + i);
+            Integer denies = playerresource.getProperty("m_iDenyCount.000" + i);
+            
+            String heroname = listofheroes.get(heroid);
+            Entity hero = r.getContext().getProcessor(Entities.class).getByDtName(getEngineDependentEntityName("Unit_Hero_" + heroname));
             
             //keep a list of heroes in the match
             if (heroes.contains(heroname) != true) {
                 heroes.add(heroname);
             }
             
-            //Create empty rows for each second, each row will contain location info for each hero, if it exists
-            while (second >= datapersecond.size()) {
-                Hashtable<String, int[]> temp = new Hashtable<String, int[]>();
-                datapersecond.add(temp);
+            Integer xpos = -1;
+            Integer ypos = -1;
+            Integer hp = -1;
+            
+            if (hero != null) {
+                //gather hero info
+                xpos = hero.getProperty("m_cellX");
+                ypos = hero.getProperty("m_cellY");
+                hp = hero.getProperty("m_iHealth");
             }
             
-            //gather the info and put it in the array
-            Integer xpos = e.getProperty("m_cellX");
-            Integer ypos = e.getProperty("m_cellY");
-            Integer team = e.getProperty("m_iTeamNum");
-            Integer hp = e.getProperty("m_iHealth");
-            int[] data = new int[]{xpos, ypos, team, hp};
-            datapersecond.get(second).put(heroname, data);
+            //put the info in the array
+            int[] data = new int[]{heroid, team, kills, deaths, assists, lasthits, denies, respawnseconds, totalgold, xpos, ypos, hp};
+            datapersecond.get(second).put(playername, data);
         }
     }
+    
+    private ArrayList<String> values = new ArrayList<String>(Arrays.asList(new String[]{"hn", "t", "k", "d", "a", "lh", "dn", "rs", "nw", "x", "y", "hp"}));
 
     public void run(String[] args) throws Exception {
-        writer = new BufferedWriter(new FileWriter("data.csv"));
         heroes = new ArrayList<String>();
+        players = new ArrayList<String>();
         datapersecond = new ArrayList< Hashtable<String, int[]> >();
+        setup();
         
         long tStart = System.currentTimeMillis();
-        SimpleRunner r = null;
+        r = null;
         try {
-            r = new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
+            r = new ControllableRunner(new MappedFileSource(args[0])).runWith(this);
+            Integer currenttick = 0;
+            while (!r.isAtEnd()) {
+                updatestats(currenttick);
+                currenttick += 30;
+                r.seek(currenttick);
+            }
         } finally {
             long tMatch = System.currentTimeMillis() - tStart;
             log.info("total time taken: {}s", (tMatch) / 1000.0);
@@ -73,39 +143,39 @@ public class Main {
             }
         }
         
-        //At the moment the api only returns data if the entity had a property change, so there are a bunch of "holes" in the data. This here attempts to fill those holes by using previous data.
-        Hashtable<String, int[]> prevdata = new Hashtable<String, int[]>();
+        BufferedWriter writer = new BufferedWriter(new FileWriter("playerdata.csv"));
+        writer.write("second");
+        for (int i = 0; i < 10; i++) {
+            writer.write(",p" + i + "pn");
+            for (int j = 0; j < values.size(); j++) {
+                writer.write(",p" + i + values.get(j));
+            }
+        }
+        writer.write("\n");
         
-        writer.write("second,hero1,h1x,h1y,h1t,h1hp,hero2,h2x,h2y,h2t,h2hp,hero3,h3x,h3y,h3t,h3hp,hero4,h4x,h4y,h4t,h4hp,hero5,h5x,h5y,h5t,h5hp,hero6,h6x,h6y,h6t,h6hp,hero7,h7x,h7y,h7t,h7hp,hero8,h8x,h8y,h8t,h8hp,hero9,h9x,h9y,h9t,h9hp,hero10,h10x,h10y,h10t,h10hp\n");
         for (int i = 0; i < datapersecond.size(); i++) {
             Hashtable<String, int[]> temp = datapersecond.get(i);
             String line = String.format("%d", i);
             
-            for (int j = 0; j < heroes.size(); j++) {
-                String hero = heroes.get(j);
+            for (int j = 0; j < 10; j++) {
+                String playername = players.get(j);
                 
-                int[] data;
-                if (temp.get(hero) == null) {
-                    if (prevdata.containsKey(hero)) {
-                        data = prevdata.get(hero);
-                    }
-                    else {
-                        data = new int[]{0,0,0,0};
-                    }
-                }
-                else {
-                    data = temp.get(hero);
-                    prevdata.put(hero, data);
-                }
+                int[] data = temp.get(playername);
+                if (data == null) continue;
                 
-                line += String.format(",%s,%d,%d,%d,%d", hero, data[0], data[1], data[2], data[3]);
+                line += "," + playername;
+                line += "," + listofheroes.get(data[0]);
+                
+                for (int k = 1; k < values.size(); k++) {
+                    line += "," + data[k];
+                }
             }
             
             line += "\n";
             writer.write(line);
         }
-        
         writer.close();
+        return;
     }
 
     public static void main(String[] args) throws Exception {

@@ -2,6 +2,11 @@
 A visualization tool to view simplified Dota 2 replays. Developed using [clarity-examples](https://github.com/skadistats/clarity-examples). This project was developed for a class project, so don't expect too much. :)
 
 # Changelog
+* [**2018-04-25**]
+  * Data parser can grab all data now instead of only grabbing changes in data (switched from SimpleRunner to ControllableRunner).
+  * Added a bunch of values parsed, including player name, KDA, net worth.
+  * As a result of these changes, the legend now groups the heroes by team!
+  * Added text fields to input time and trail length.
 * [**2018-04-23**]
   * Drawing dots and trails is more efficient now, but requires a ~4 second preload time of the page (need to implement loading text). Trails can go up to max length now.
 * [**2018-04-23**]

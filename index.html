@@ -32,11 +32,11 @@ body {
 
 <body>
     <div id="timeslider" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:30px; width:1150px;">
-        Time: <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:1050px"> <span id="minute">00</span>:<span id="second">00</span>
+        Time: <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:1050px"> <input id="minute" type="text" value="00" style="width:20px" oninput="updatetime2()">:<input id="second" type="text" value="00" style="width:20px" oninput="updatetime2()">
     </div>
     <div class="chart" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; background-image:url('Minimap_6.82.png'); height:700px; width:700px;">asdf</div>
     <div id="options" style="position:absolute; top:350px; left:730px; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:380px; width:420px;">
-        Trail Length: <input min="0" max="20" value="5" id="inputTL" oninput="updateTL()" type="range" style="width:300px"> <span id="TL">5</span>
+        Trail Length: <input min="0" max="20" value="5" id="inputTL" oninput="updateTL()" type="range" style="width:300px"> <input id="TL" type="text" value="5" style="width:30px" oninput="updateTL2()">
     </div>
 </body>
 

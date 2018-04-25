@@ -28,33 +28,35 @@ var color = function(d) {return colors[d.id-1];};
 var stroke = function(d) {return ["", "", "green", "red"][d.team];}
 
 var svg;
+var gamelength = 0;
 
 window.onload = function() {
     document.getElementById("options").style.top = ((legendsize * 2 + 6) * 10) + 90 + "px";
     document.getElementById("options").style.height = (660 - ((legendsize * 2 + 6) * 10)) + "px";
 }
 
-d3.csv("data.csv", function(data) {
+d3.csv("playerdata.csv", function(data) {
 	data.forEach(function(d) {
 		var index = +d.second;
 		while (index >= dataset.length) {
 			var asdf = [];
 			dataset.push(asdf);
 		}
-		dataset[index].push({id:1, name:d.hero1, x:+d.h1x, y:+d.h1y, team:+d.h1t, hp:+d.h1hp});
-		dataset[index].push({id:2, name:d.hero2, x:+d.h2x, y:+d.h2y, team:+d.h2t, hp:+d.h2hp});
-		dataset[index].push({id:3, name:d.hero3, x:+d.h3x, y:+d.h3y, team:+d.h3t, hp:+d.h3hp});
-		dataset[index].push({id:4, name:d.hero4, x:+d.h4x, y:+d.h4y, team:+d.h4t, hp:+d.h4hp});
-		dataset[index].push({id:5, name:d.hero5, x:+d.h5x, y:+d.h5y, team:+d.h5t, hp:+d.h5hp});
-		dataset[index].push({id:6, name:d.hero6, x:+d.h6x, y:+d.h6y, team:+d.h6t, hp:+d.h6hp});
-		dataset[index].push({id:7, name:d.hero7, x:+d.h7x, y:+d.h7y, team:+d.h7t, hp:+d.h7hp});
-		dataset[index].push({id:8, name:d.hero8, x:+d.h8x, y:+d.h8y, team:+d.h8t, hp:+d.h8hp});
-		dataset[index].push({id:9, name:d.hero9, x:+d.h9x, y:+d.h9y, team:+d.h9t, hp:+d.h9hp});
-		dataset[index].push({id:10, name:d.hero10, x:+d.h10x, y:+d.h10y, team:+d.h10t, hp:+d.h10hp});
+		dataset[index].push({id:1, name:d.p0hn, x:+d.p0x, y:+d.p0y, team:+d.p0t, hp:+d.p0hp});
+		dataset[index].push({id:2, name:d.p1hn, x:+d.p1x, y:+d.p1y, team:+d.p1t, hp:+d.p1hp});
+		dataset[index].push({id:3, name:d.p2hn, x:+d.p2x, y:+d.p2y, team:+d.p2t, hp:+d.p2hp});
+		dataset[index].push({id:4, name:d.p3hn, x:+d.p3x, y:+d.p3y, team:+d.p3t, hp:+d.p3hp});
+		dataset[index].push({id:5, name:d.p4hn, x:+d.p4x, y:+d.p4y, team:+d.p4t, hp:+d.p4hp});
+		dataset[index].push({id:6, name:d.p5hn, x:+d.p5x, y:+d.p5y, team:+d.p5t, hp:+d.p5hp});
+		dataset[index].push({id:7, name:d.p6hn, x:+d.p6x, y:+d.p6y, team:+d.p6t, hp:+d.p6hp});
+		dataset[index].push({id:8, name:d.p7hn, x:+d.p7x, y:+d.p7y, team:+d.p7t, hp:+d.p7hp});
+		dataset[index].push({id:9, name:d.p8hn, x:+d.p8x, y:+d.p8y, team:+d.p8t, hp:+d.p8hp});
+		dataset[index].push({id:10, name:d.p9hn, x:+d.p9x, y:+d.p9y, team:+d.p9t, hp:+d.p9hp});
 	});
 	
-	document.getElementById("inputtime").max = dataset.length - 1;
-	document.getElementById("inputTL").max = dataset.length - 1;
+	gamelength = dataset.length - 1;
+	document.getElementById("inputtime").max = gamelength;
+	document.getElementById("inputTL").max = gamelength;
 	continuesetup();
 	update();
 });
@@ -179,15 +181,60 @@ function update() {
 function updatetime() {
     previoussecond = currentsecond;
     currentsecond = document.getElementById("inputtime").value;
-    document.getElementById("minute").innerHTML = String(Math.floor(currentsecond/60)).padStart(2, "0");
-    document.getElementById("second").innerHTML = String(currentsecond%60).padStart(2, "0");
+    document.getElementById("minute").value = String(Math.floor(currentsecond/60)).padStart(2, "0");
+    document.getElementById("second").value = String(currentsecond%60).padStart(2, "0");
     //d3.select("svg").remove();
+    update();
+}
+
+function updatetime2() {
+    previoussecond = currentsecond;
+    var s = +document.getElementById("second").value;
+    var m = +document.getElementById("minute").value;
+    
+    if (s < 0) {
+        s = 0;
+        document.getElementById("second").value = "00";
+    }
+    if (s > 59) {
+        s = 59;
+        document.getElementById("second").value = "59";
+    }
+    if (m < 0) {
+        m = 0;
+        document.getElementById("minute").value = "00";
+    }
+    var s2 = (m * 60) + s;
+    if (s2 > gamelength) {
+        s2 = gamelength;
+        document.getElementById("minute").value = String(Math.floor(s2/60)).padStart(2, "0");
+        document.getElementById("second").value = String(s2%60).padStart(2, "0");
+    }
+    currentsecond = s2;
+    document.getElementById("inputtime").value = s2;
     update();
 }
 
 function updateTL() {
     traillength = document.getElementById("inputTL").value;
-    document.getElementById("TL").innerHTML = traillength;
+    document.getElementById("TL").value = traillength;
     //d3.select("svg").remove();
+    update();
+}
+
+function updateTL2() {
+    var tl = +document.getElementById("TL").value;
+    
+    if (tl < 0) {
+        tl = 0;
+        document.getElementById("TL").value = "0";
+    }
+    if (tl > gamelength) {
+        tl = gamelength;
+        document.getElementById("TL").value = tl;
+    }
+    
+    traillength = tl;
+    document.getElementById("inputTL").value = tl;
     update();
 }
