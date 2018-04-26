@@ -2,6 +2,11 @@
 A visualization tool to view simplified Dota 2 replays. Developed using [clarity-examples](https://github.com/skadistats/clarity-examples). This project was developed for a class project, so don't expect too much. :)
 
 # Changelog
+* [**2018-04-26**]
+  * Added a scoreboard which shows player stats for the current time frame.
+  * Clicking the circle icons toggles the icons and trails on the map for that hero.
+  * Added play/pause button to automatically increment time frame, play speed can be adjusted with a slider from 0 to 30.
+  * Data parser can grab creep data now, outputs to a separate csv.
 * [**2018-04-25**]
   * Data parser can grab all data now instead of only grabbing changes in data (switched from SimpleRunner to ControllableRunner).
   * Added a bunch of values parsed, including player name, KDA, net worth.

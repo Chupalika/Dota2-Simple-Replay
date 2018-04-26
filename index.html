@@ -25,17 +25,52 @@ body {
     fill:none;
 }
 
+table, th, td {
+    border: 1px solid black;
+}
+
+td {
+    height: 26px;
+}
+
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
 <script type="text/javascript" src="scatterchart.js"></script>
 
 <body>
-    <div id="timeslider" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:30px; width:1150px;">
-        Time: <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:1050px"> <input id="minute" type="text" value="00" style="width:20px" oninput="updatetime2()">:<input id="second" type="text" value="00" style="width:20px" oninput="updatetime2()">
+    <div id="timeslider" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:30px; width:1200px;">
+        Time: <input min="0" max="1000" value="0" id="inputtime" oninput="updatetime()" type="range" style="width:1050px"> <input id="minute" type="text" value="00" style="width:20px" oninput="updatetime2()">:<input id="second" type="text" value="00" style="width:20px" oninput="updatetime2()"> <button type="button" onclick="toggleanimate()"><i id="playicon" class="fa fa-play"></i></button>
     </div>
     <div class="chart" style="display:inline-block; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; background-image:url('Minimap_6.82.png'); height:700px; width:700px;">asdf</div>
-    <div id="options" style="position:absolute; top:350px; left:730px; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:380px; width:420px;">
+    <div id="scoreboard" style="position:absolute; top:50px; left:720px; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:350px; width:430px">
+        <table style="width:420px; height:270px;">
+            <tr>
+                <th style="width:10%">Icon</th>
+                <th style="width:25%">Hero</th>
+                <th style="width:10%">K</th>
+                <th style="width:10%">D</th>
+                <th style="width:10%">A</th>
+                <th style="width:10%">LH</th>
+                <th style="width:10%">DN</th>
+                <th style="width:15%">Gold</th>
+            </tr>
+            <tr><td onclick="togglehero(0)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(1)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(2)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(3)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(4)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(5)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(6)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(7)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(8)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td onclick="togglehero(9)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </table>
+    </div>
+    <div id="options" style="position:absolute; top:410px; left:720px; border:3px solid #AAAAAA; border-radius:10px; padding:3px 3px 3px 3px; height:330px; width:430px;">
+        Play speed: <input min="1" max="30" value="1" id="inputPS" oninput="updatePS()" type="range" style="width:300px"> <input id="PS" type="text" value="1" style="width:30px" oninput="updatePS2()"><br>
         Trail Length: <input min="0" max="20" value="5" id="inputTL" oninput="updateTL()" type="range" style="width:300px"> <input id="TL" type="text" value="5" style="width:30px" oninput="updateTL2()">
     </div>
 </body>
